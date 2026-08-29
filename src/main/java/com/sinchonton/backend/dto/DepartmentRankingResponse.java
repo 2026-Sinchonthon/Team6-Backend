@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public class CollegeRankingResponse {
-    private final Long collegeId;
+public class DepartmentRankingResponse {
+    private final Long departmentId;
     private final String name;
     private final Long totalSeconds;
     private final long totalStudyMinutes;
@@ -14,9 +14,9 @@ public class CollegeRankingResponse {
     private final int rank;
     private final boolean isMine;
 
-    public CollegeRankingResponse(Long collegeId, String name, Long totalSeconds,
-                                  int activeUserCount, int rank, boolean isMine) {
-        this.collegeId = collegeId;
+    public DepartmentRankingResponse(Long departmentId, String name, Long totalSeconds,
+                                     int activeUserCount, int rank, boolean isMine) {
+        this.departmentId = departmentId;
         this.name = name;
         this.totalSeconds = totalSeconds;
         this.totalStudyMinutes = totalSeconds / 60;
@@ -26,10 +26,7 @@ public class CollegeRankingResponse {
         this.isMine = isMine;
     }
 
-    /**
-     * Lombok 기본 getter(isMine())를 쓰면 Jackson이 "is"를 떼고 "mine"으로 직렬화해버려서,
-     * 프론트 스펙(isMine)과 다르게 나갑니다. 직접 이름을 고정합니다.
-     */
+    /** Lombok 기본 getter 대신 직접 이름을 고정해서 Jackson이 "isMine"으로 직렬화하게 합니다. */
     @JsonProperty("isMine")
     public boolean isMine() {
         return isMine;

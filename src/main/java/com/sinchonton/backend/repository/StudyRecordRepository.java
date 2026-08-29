@@ -31,4 +31,8 @@ public interface StudyRecordRepository extends JpaRepository<StudyRecord, Long> 
         Long getUserId();
         Long getTotalSeconds();
     }
+
+    // 지금 타이머를 진행 중인(끝나지 않은 기록이 있는) 유저 id 목록. 랭킹 화면의 "현재 N명 집중 중" 표시용
+    @Query("SELECT DISTINCT s.userId FROM StudyRecord s WHERE s.endedAt IS NULL")
+    List<Long> findActiveUserIds();
 }

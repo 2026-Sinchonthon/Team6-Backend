@@ -7,6 +7,8 @@ package com.sinchonton.backend.domain.user.dto;
 public record UserMeSummaryResponse(
         String nickname,
         String profileImage,
+        String email,
+        String loginProvider,
         Long schoolId,
         String schoolName,
         Long collegeId,
