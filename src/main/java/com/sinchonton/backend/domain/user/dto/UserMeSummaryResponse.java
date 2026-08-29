@@ -8,6 +8,7 @@ public record UserMeSummaryResponse(
         String nickname,
         String profileImage,
         String email,
+        String loginEmail,
         String loginProvider,
         Long schoolId,
         String schoolName,
