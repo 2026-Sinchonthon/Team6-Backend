@@ -1,5 +1,6 @@
 package com.sinchonton.backend.domain.user.controller;
 
+import com.sinchonton.backend.domain.user.dto.CollegeUpdateRequest;
 import com.sinchonton.backend.domain.user.dto.DepartmentUpdateRequest;
 import com.sinchonton.backend.domain.user.dto.SchoolUpdateRequest;
 import com.sinchonton.backend.domain.user.dto.UserMeSummaryResponse;
@@ -36,11 +37,22 @@ public class UserController {
         return ApiResponse.success();
     }
 
-    /** 학교 선택 이후에 학과를 설정합니다. 단과대는 학과로부터 자동으로 결정됩니다. */
+    /** 학교 선택 이후에 단과대를 설정합니다 (목록에서 선택). 재선택 시 학과는 초기화됩니다. */
+    @PatchMapping("/college")
+    public ApiResponse<Void> updateCollege(@AuthenticationPrincipal AuthUser authUser,
+                                           @Valid @RequestBody CollegeUpdateRequest request) {
+        userService.updateCollege(authUser.getUserId(), request.collegeId());
+        return ApiResponse.success();
+    }
+
+    /**
+     * 단과대 선택 이후에 학과를 설정합니다. 목록에서 고르지 않고 텍스트로 직접
+     * 입력받습니다 — 이미 있는 이름이면 그 학과를, 없으면 새로 만들어서 씁니다.
+     */
     @PatchMapping("/department")
     public ApiResponse<Void> updateDepartment(@AuthenticationPrincipal AuthUser authUser,
                                               @Valid @RequestBody DepartmentUpdateRequest request) {
-        userService.updateDepartment(authUser.getUserId(), request.departmentId());
+        userService.updateDepartment(authUser.getUserId(), request.name());
         return ApiResponse.success();
     }
 }
