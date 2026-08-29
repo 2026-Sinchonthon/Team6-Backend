@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * 로그인 완료 후 돌아갈 프론트 주소를 결정합니다.
@@ -75,27 +72,15 @@ public class OAuth2RedirectUriResolver {
         return oAuth2Properties.redirectUri();
     }
 
-    /**
-     * 요청된 주소의 출처(scheme://host:port)가 허용 목록에 있는지 확인합니다.
-     *
-     * <p>허용 목록 항목에 {@code *}(와일드카드)를 쓸 수 있습니다.
-     * 예: {@code https://*.vercel.app} — Vercel 프리뷰/프로덕션 배포처럼 배포마다
-     * 주소가 바뀌는 경우, 매번 서버 설정을 바꾸지 않아도 되게 하기 위함입니다.
-     */
+    /** 요청된 주소의 출처(scheme://host:port)가 허용 목록에 있는지 확인합니다. */
     private boolean isAllowed(String requestedUri) {
         String origin = toOrigin(requestedUri);
         if (origin == null) {
             return false;
         }
         return oAuth2Properties.allowedRedirectOrigins().stream()
-                .anyMatch(pattern -> matchesPattern(origin, pattern));
-    }
-
-    private boolean matchesPattern(String origin, String pattern) {
-        String regex = Arrays.stream(pattern.split("\\*", -1))
-                .map(Pattern::quote)
-                .collect(Collectors.joining(".*"));
-        return origin.matches(regex);
+                .map(this::toOrigin)
+                .anyMatch(origin::equals);
     }
 
     /** "http://localhost:5173/oauth/callback" → "http://localhost:5173" */
