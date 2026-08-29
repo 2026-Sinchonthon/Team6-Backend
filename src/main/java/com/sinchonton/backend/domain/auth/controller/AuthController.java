@@ -1,7 +1,7 @@
 package com.sinchonton.backend.domain.auth.controller;
 
-import com.sinchonton.backend.domain.auth.dto.ReissueRequest;
-import com.sinchonton.backend.domain.auth.dto.ReissueResponse;
+import com.sinchonton.backend.domain.auth.dto.RefreshRequest;
+import com.sinchonton.backend.domain.auth.dto.RefreshResponse;
 import com.sinchonton.backend.domain.auth.service.AuthService;
 import com.sinchonton.backend.global.common.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -22,8 +22,8 @@ public class AuthController {
     private final AuthService authService;
 
     /** 리프레시 토큰으로 액세스 토큰을 다시 발급합니다. */
-    @PostMapping("/reissue")
-    public ApiResponse<ReissueResponse> reissue(@Valid @RequestBody ReissueRequest request) {
-        return ApiResponse.success(authService.reissue(request.refreshToken()));
+    @PostMapping("/refresh")
+    public ApiResponse<RefreshResponse> refresh(@Valid @RequestBody RefreshRequest request) {
+        return ApiResponse.success(authService.refresh(request.refreshToken()));
     }
 }
