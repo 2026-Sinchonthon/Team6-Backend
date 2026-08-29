@@ -1,6 +1,8 @@
 package com.sinchonton.backend.controller;
 
+import com.sinchonton.backend.global.security.AuthUser;
 import com.sinchonton.backend.service.TimerService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,18 +16,17 @@ public class TimerController {
     }
 
     @PostMapping("/start")
-    public void start(@RequestParam Long userId) {
-        // 나중에 userId는 JWT 토큰에서 꺼내는 방식으로 바뀔 예정 (A 작업 완료되면)
-        timerService.startTimer(userId);
+    public void start(@AuthenticationPrincipal AuthUser authUser) {
+        timerService.startTimer(authUser.getUserId());
     }
 
     @PostMapping("/stop")
-    public void stop(@RequestParam Long userId) {
-        timerService.stopTimer(userId);
+    public void stop(@AuthenticationPrincipal AuthUser authUser) {
+        timerService.stopTimer(authUser.getUserId());
     }
 
     @GetMapping("/today")
-    public long today(@RequestParam Long userId) {
-        return timerService.getTodayTotalSeconds(userId);
+    public long today(@AuthenticationPrincipal AuthUser authUser) {
+        return timerService.getTodayTotalSeconds(authUser.getUserId());
     }
 }

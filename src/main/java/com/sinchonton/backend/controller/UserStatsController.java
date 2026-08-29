@@ -1,7 +1,9 @@
 package com.sinchonton.backend.controller;
 
 import com.sinchonton.backend.dto.UserStatsResponse;
+import com.sinchonton.backend.global.security.AuthUser;
 import com.sinchonton.backend.service.UserStatsService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,7 +17,7 @@ public class UserStatsController {
     }
 
     @GetMapping("/me/stats")
-    public UserStatsResponse getMyStats(@RequestParam Long userId) {
-        return userStatsService.getStats(userId);
+    public UserStatsResponse getMyStats(@AuthenticationPrincipal AuthUser authUser) {
+        return userStatsService.getStats(authUser.getUserId());
     }
 }

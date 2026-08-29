@@ -12,10 +12,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -34,6 +37,7 @@ public class SecurityConfig {
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final OAuth2RedirectUriResolver oAuth2RedirectUriResolver;
     private final AdminKeyFilter adminKeyFilter;
+    private final ClientRegistrationRepository clientRegistrationRepository;
     private final CorsConfigurationSource corsConfigurationSource;
 
     /**
@@ -51,6 +55,7 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/v3/api-docs/**",
             "/h2-console/**",
+            "/api/dev/**"
 //            "/api/test/**",          // 임시: 테스트 시더 API (해커톤 개발용, 나중에 제거)
 //            "/api/timer/**",         // 임시: 인증 완성 전 개발 편의용
 //            "/api/rankings/**",      // 임시: 인증 완성 전 개발 편의용
@@ -84,6 +89,8 @@ public class SecurityConfig {
 
                 // 카카오 로그인 → CustomOAuth2UserService 로 회원 조회·생성 → 성공 핸들러가 JWT 발급
                 .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(endpoint -> endpoint.authorizationRequestResolver(
+                                authorizationRequestResolver(clientRegistrationRepository)))
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
                         .failureHandler(oAuth2FailureHandler)
@@ -98,5 +105,20 @@ public class SecurityConfig {
                 .addFilterBefore(adminKeyFilter, JwtAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    /**
+     * 카카오 인가 요청에 {@code prompt=login} 을 추가해 카카오계정 재인증을 강제합니다.
+     *
+     * <p>이게 없으면 브라우저에 카카오 로그인 세션이 남아있는 동안은 로그인 화면 없이
+     * 바로 통과돼서, 로그인 화면을 확인하거나 다른 계정으로 테스트하기 어렵습니다.
+     */
+    private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
+            ClientRegistrationRepository clientRegistrationRepository) {
+        DefaultOAuth2AuthorizationRequestResolver resolver = new DefaultOAuth2AuthorizationRequestResolver(
+                clientRegistrationRepository, OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+        resolver.setAuthorizationRequestCustomizer(
+                customizer -> customizer.additionalParameters(params -> params.put("prompt", "login")));
+        return resolver;
     }
 }
