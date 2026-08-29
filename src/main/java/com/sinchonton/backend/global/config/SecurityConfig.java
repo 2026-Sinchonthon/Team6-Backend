@@ -47,6 +47,9 @@ public class SecurityConfig {
             "/api/auth/**",          // 토큰 재발급
             "/oauth2/**",            // 카카오 로그인 시작 (/oauth2/authorization/kakao)
             "/login/oauth2/**",      // 카카오 콜백 (/login/oauth2/code/kakao)
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
             "/h2-console/**"
     };
 
