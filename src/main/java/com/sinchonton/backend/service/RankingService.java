@@ -56,6 +56,10 @@ public class RankingService {
 
     // 단과대별 순위: schoolId로 그 학교 유저들을 collegeId 기준으로 묶어서 합산
     public List<CollegeRankingResponse> getCollegeRanking(Long schoolId, Long requestingUserId) {
+        if (!schoolRepository.existsById(schoolId)) {
+            throw new BusinessException(ErrorCode.INVALID_SCHOOL);
+        }
+
         Map<Long, Long> userSeconds = getUserIdToSecondsMap();
         Set<Long> activeUserIds = getActiveUserIds();
         List<User> users = userRepository.findAllBySchoolId(schoolId);

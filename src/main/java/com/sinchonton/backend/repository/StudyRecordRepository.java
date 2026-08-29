@@ -32,7 +32,9 @@ public interface StudyRecordRepository extends JpaRepository<StudyRecord, Long> 
         Long getTotalSeconds();
     }
 
-    // 지금 타이머를 진행 중인(끝나지 않은 기록이 있는) 유저 id 목록. 랭킹 화면의 "현재 N명 집중 중" 표시용
-    @Query("SELECT DISTINCT s.userId FROM StudyRecord s WHERE s.endedAt IS NULL")
+    // "현재 N명 집중 중" 표시용. 타이머가 안 끝났고(endedAt IS NULL) 일시정지도 아닌
+    // (pausedAt IS NULL) 유저만 "집중 중"으로 센다 — 일시정지 중인 유저까지 넣으면
+    // 문구 의미랑 안 맞아서 제외했다.
+    @Query("SELECT DISTINCT s.userId FROM StudyRecord s WHERE s.endedAt IS NULL AND s.pausedAt IS NULL")
     List<Long> findActiveUserIds();
 }

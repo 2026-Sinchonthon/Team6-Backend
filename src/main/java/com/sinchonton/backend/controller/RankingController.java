@@ -25,6 +25,9 @@ public class RankingController {
         this.rankingService = rankingService;
     }
 
+    // 지금은 SecurityConfig에서 /api/rankings/** 가 인증 필수라 authUser가 null일 일이
+    // 없다. 나중에 이 경로를 공개로 풀 경우를 대비해 null-safe 하게 짜뒀다 — isMine
+    // 계산용 유저 식별 없이도 순위 목록 자체는 볼 수 있게.
     @GetMapping("/colleges")
     public List<CollegeRankingResponse> getCollegeRanking(@RequestParam Long schoolId,
                                                           @AuthenticationPrincipal AuthUser authUser) {
