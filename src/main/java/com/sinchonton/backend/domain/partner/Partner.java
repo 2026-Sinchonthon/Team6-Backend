@@ -27,9 +27,13 @@ public class Partner {
 
     private Integer discountRate;
 
+    private String benefitTitle;
+
     private String imageUrl;
 
     private String naverMapUrl;
+
+    private String statusMessage;
 
     private String occupiedSchoolName;
 
@@ -43,8 +47,10 @@ public class Partner {
             String address,
             String description,
             Integer discountRate,
+            String benefitTitle,
             String imageUrl,
             String naverMapUrl,
+            String statusMessage,
             String occupiedSchoolName,
             String occupiedCollegeName,
             Integer occupiedUserCount
@@ -54,8 +60,10 @@ public class Partner {
         this.address = address;
         this.description = description;
         this.discountRate = discountRate;
+        this.benefitTitle = benefitTitle;
         this.imageUrl = imageUrl;
         this.naverMapUrl = naverMapUrl;
+        this.statusMessage = statusMessage;
         this.occupiedSchoolName = occupiedSchoolName;
         this.occupiedCollegeName = occupiedCollegeName;
         this.occupiedUserCount = occupiedUserCount;

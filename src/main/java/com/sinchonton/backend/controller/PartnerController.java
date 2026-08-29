@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/partners")
-@Tag(name = "Partner", description = "제휴 탭에서 사용하는 스터디카페/스터디룸 목업 조회 API")
+@Tag(name = "Partner", description = "제휴 탭에서 사용하는 스터디카페/식당/카페 목업 조회 API")
 public class PartnerController {
 
     private final PartnerService partnerService;
@@ -29,13 +29,13 @@ public class PartnerController {
     }
 
     @GetMapping
-    @Operation(summary = "제휴처 목록 조회", description = "제휴처 카드 목록에 사용할 이름, 주소, 이미지, 점령 문구, 네이버지도 URL을 조회합니다.")
+    @Operation(summary = "제휴처 목록 조회", description = "제휴처 카드 목록에 사용할 이름, 주소, 이미지, 혜택 문구, 상태 문구, 지도 URL을 조회합니다.")
     public ApiResponse<List<PartnerSummaryResponse>> getPartners() {
         return ApiResponse.success(partnerService.getPartners());
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "제휴처 상세 조회", description = "선택한 제휴처의 상세 설명, 주소, 네이버지도 URL, 점령 정보를 조회합니다.")
+    @Operation(summary = "제휴처 상세 조회", description = "선택한 제휴처의 상세 설명, 주소, 혜택 문구, 지도 URL, 상태 문구를 조회합니다.")
     public ApiResponse<PartnerDetailResponse> getPartner(@PathVariable Long id) {
         return ApiResponse.success(partnerService.getPartner(id));
     }

@@ -35,6 +35,9 @@ public class UserService {
         return new UserMeSummaryResponse(
                 user.getNickname(),
                 user.getProfileImage(),
+                user.getEmail(),
+                user.getEmail(),
+                "카카오톡",
                 user.getSchoolId(),
                 schoolName,
                 user.getCollegeId(),
