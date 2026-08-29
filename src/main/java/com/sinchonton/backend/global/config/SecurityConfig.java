@@ -1,5 +1,7 @@
 package com.sinchonton.backend.global.config;
 
+import com.sinchonton.backend.global.security.admin.AdminKeyFilter;
+import com.sinchonton.backend.global.security.admin.AdminKeyProperties;
 import com.sinchonton.backend.global.security.handler.JwtAccessDeniedHandler;
 import com.sinchonton.backend.global.security.handler.JwtAuthenticationEntryPoint;
 import com.sinchonton.backend.global.security.jwt.JwtAuthenticationFilter;
@@ -21,7 +23,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableConfigurationProperties({JwtProperties.class, OAuth2Properties.class})
+@EnableConfigurationProperties({JwtProperties.class, OAuth2Properties.class, AdminKeyProperties.class})
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -31,6 +33,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final OAuth2RedirectUriResolver oAuth2RedirectUriResolver;
+    private final AdminKeyFilter adminKeyFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
     /**
@@ -41,6 +44,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/health",
             "/api/auth/**",          // 토큰 재발급
+            "/api/admin/**",         // JWT 대신 X-Admin-Key 헤더로 별도 인증 (AdminKeyFilter)
             "/oauth2/**",            // 카카오 로그인 시작 (/oauth2/authorization/kakao)
             "/login/oauth2/**",      // 카카오 콜백 (/login/oauth2/code/kakao)
             "/swagger-ui/**",
@@ -90,7 +94,8 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)             // 403
                 )
 
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(adminKeyFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

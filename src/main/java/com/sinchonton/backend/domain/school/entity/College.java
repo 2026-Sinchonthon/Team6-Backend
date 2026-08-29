@@ -26,4 +26,9 @@ public class College {
 
     @Column(nullable = false)
     private String name;
+
+    public College(Long schoolId, String name) {
+        this.schoolId = schoolId;
+        this.name = name;
+    }
 }
