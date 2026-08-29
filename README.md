@@ -32,6 +32,13 @@ src/main/resources/
   application-prod.yml    # 배포 (MySQL, 환경변수로 값 주입)
 ```
 
+## 협업 규칙
+
+- **작은 단위로 자주 PR 올리고 바로 머지하기.** 브랜치를 오래 들고 있을수록 `main`과 차이가 벌어져 나중에 충돌이 커집니다.
+- 머지 전에 최소 `./gradlew compileJava`는 통과하는 상태로 올리기.
+- `SecurityConfig`, `ErrorCode`, `User` 엔티티처럼 **여러 명이 같이 건드리는 공용 파일**을 수정할 땐, 다른 사람 브랜치에 진행 중인 작업이 있는지 한 번 확인하고 진행하기 (`git log origin/<브랜치명> --oneline`).
+- `PUBLIC_ENDPOINTS`(`SecurityConfig`)에 경로를 추가할 땐 각자 자기 항목만 추가하고, 다른 사람이 넣은 줄은 지우지 않기.
+
 ## 배포
 
 EC2(Ubuntu, Docker) 위에 `docker compose`로 mysql + app 컨테이너를 띄우는 구조입니다.
@@ -82,5 +89,5 @@ ssh -i deploy/sinchonton-key.pem ubuntu@<서버IP> \
 ## AWS 인프라
 
 - EC2 t3.small (Ubuntu 24.04), 리전: `ap-northeast-2`
-- 보안그룹: 22(SSH), 80, 8080 전체 오픈
+- 보안그룹: 22(SSH), 80, 443, 8080 전체 오픈
 - 해커톤 당일 데모용으로, 종료 후 인스턴스는 폐기 예정

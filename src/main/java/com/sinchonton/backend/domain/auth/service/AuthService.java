@@ -1,6 +1,6 @@
 package com.sinchonton.backend.domain.auth.service;
 
-import com.sinchonton.backend.domain.auth.dto.ReissueResponse;
+import com.sinchonton.backend.domain.auth.dto.RefreshResponse;
 import com.sinchonton.backend.domain.user.repository.UserRepository;
 import com.sinchonton.backend.global.exception.BusinessException;
 import com.sinchonton.backend.global.exception.ErrorCode;
@@ -23,7 +23,7 @@ public class AuthService {
      * <p>액세스 토큰을 넣어 호출하면 거부합니다. 토큰 타입을 확인하지 않으면
      * 액세스 토큰만으로 무한히 갱신할 수 있게 됩니다.
      */
-    public ReissueResponse reissue(String refreshToken) {
+    public RefreshResponse refresh(String refreshToken) {
         if (!jwtTokenProvider.validate(refreshToken) || !jwtTokenProvider.isRefreshToken(refreshToken)) {
             throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
@@ -35,6 +35,6 @@ public class AuthService {
             throw new BusinessException(ErrorCode.USER_NOT_FOUND);
         }
 
-        return new ReissueResponse(jwtTokenProvider.createAccessToken(userId));
+        return new RefreshResponse(jwtTokenProvider.createAccessToken(userId));
     }
 }
