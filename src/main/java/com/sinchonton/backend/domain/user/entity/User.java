@@ -33,10 +33,13 @@ public class User extends BaseTimeEntity {
     private String profileImage;
 
     /** 학교 인증 전에는 null. 온보딩에서 채워집니다. */
-    private String school;
+    private Long schoolId;
+
+    /** 단과대. 학교와 함께 온보딩에서 채워집니다. */
+    private Long collegeId;
 
     /** 학과. 학교와 함께 온보딩에서 채워집니다. */
-    private String department;
+    private Long departmentId;
 
     @Builder(access = AccessLevel.PRIVATE)
     private User(String email, String socialId, String nickname, String profileImage) {
@@ -56,16 +59,17 @@ public class User extends BaseTimeEntity {
     }
 
     /**
-     * 온보딩에서 학교 · 학과를 설정합니다.
-     * 값이 유효한 학교/학과인지는 서비스 계층에서 검증합니다.
+     * 온보딩에서 학교 · 단과대 · 학과를 설정합니다.
+     * 값이 유효한 학교/단과대/학과인지는 서비스 계층에서 검증합니다.
      */
-    public void updateSchool(String school, String department) {
-        this.school = school;
-        this.department = department;
+    public void updateSchool(Long schoolId, Long collegeId, Long departmentId) {
+        this.schoolId = schoolId;
+        this.collegeId = collegeId;
+        this.departmentId = departmentId;
     }
 
-    /** 온보딩(학교 인증 · 학과 선택)을 마쳤는지 여부. */
+    /** 온보딩(학교 인증 · 단과대/학과 선택)을 마쳤는지 여부. */
     public boolean hasCompletedOnboarding() {
-        return school != null && department != null;
+        return schoolId != null && collegeId != null && departmentId != null;
     }
 }
