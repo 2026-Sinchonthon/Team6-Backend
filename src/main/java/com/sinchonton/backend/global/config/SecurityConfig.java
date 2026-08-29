@@ -37,13 +37,6 @@ public class SecurityConfig {
      * 인증 없이 접근할 수 있는 경로.
      * 새 경로가 필요하면 여기에 추가하세요.
      */
-//    private static final String[] PUBLIC_ENDPOINTS = {
-//            "/api/health",
-//            "/api/auth/**",          // 토큰 재발급
-//            "/oauth2/**",            // 카카오 로그인 시작 (/oauth2/authorization/kakao)
-//            "/login/oauth2/**",      // 카카오 콜백 (/login/oauth2/code/kakao)
-//            "/h2-console/**"
-//    };
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/health",
@@ -51,10 +44,10 @@ public class SecurityConfig {
             "/oauth2/**",            // 카카오 로그인 시작 (/oauth2/authorization/kakao)
             "/login/oauth2/**",      // 카카오 콜백 (/login/oauth2/code/kakao)
             "/h2-console/**",
-            "/api/test/**",          // 임시: 테스트 시더 API (해커톤 개발용, 나중에 제거)
-            "/api/timer/**",         // 임시: 인증 완성 전 개발 편의용
-            "/api/rankings/**",      // 임시: 인증 완성 전 개발 편의용
-            "/api/users/**"          // 임시: 인증 완성 전 개발 편의용
+//            "/api/test/**",          // 임시: 테스트 시더 API (해커톤 개발용, 나중에 제거)
+//            "/api/timer/**",         // 임시: 인증 완성 전 개발 편의용
+//            "/api/rankings/**",      // 임시: 인증 완성 전 개발 편의용
+//            "/api/users/**"          // 임시: 인증 완성 전 개발 편의용
     };
 
     @Bean
