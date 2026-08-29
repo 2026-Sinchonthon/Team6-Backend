@@ -53,20 +53,40 @@ public class UserService {
         user.updateSchool(schoolId, null, null);
     }
 
+    /**
+     * 단과대는 목록에서 골라 선택합니다. (재)선택 시 이전에 입력했던 학과는 더 이상
+     * 유효하지 않으므로 초기화합니다.
+     */
     @Transactional
-    public void updateDepartment(Long userId, Long departmentId) {
+    public void updateCollege(Long userId, Long collegeId) {
         User user = getUser(userId);
         if (user.getSchoolId() == null) {
             throw new BusinessException(ErrorCode.SCHOOL_NOT_SELECTED);
         }
 
-        Department department = findDepartment(departmentId);
-        College college = findCollege(department.getCollegeId());
+        College college = findCollege(collegeId);
         if (!college.getSchoolId().equals(user.getSchoolId())) {
-            throw new BusinessException(ErrorCode.DEPARTMENT_SCHOOL_MISMATCH);
+            throw new BusinessException(ErrorCode.COLLEGE_SCHOOL_MISMATCH);
         }
 
-        user.updateSchool(user.getSchoolId(), college.getId(), department.getId());
+        user.updateSchool(user.getSchoolId(), college.getId(), null);
+    }
+
+    /**
+     * 학과는 목록에서 고르지 않고 직접 텍스트로 입력합니다. 이미 선택한 단과대 안에
+     * 같은 이름의 학과가 있으면 그걸 쓰고, 없으면 새로 만듭니다.
+     */
+    @Transactional
+    public void updateDepartment(Long userId, String departmentName) {
+        User user = getUser(userId);
+        if (user.getCollegeId() == null) {
+            throw new BusinessException(ErrorCode.COLLEGE_NOT_SELECTED);
+        }
+
+        Department department = departmentRepository.findByCollegeIdAndName(user.getCollegeId(), departmentName)
+                .orElseGet(() -> departmentRepository.save(new Department(user.getCollegeId(), departmentName)));
+
+        user.updateSchool(user.getSchoolId(), user.getCollegeId(), department.getId());
     }
 
     private User getUser(Long userId) {
@@ -81,7 +101,7 @@ public class UserService {
 
     private College findCollege(Long collegeId) {
         return collegeRepository.findById(collegeId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_DEPARTMENT));
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_COLLEGE));
     }
 
     private Department findDepartment(Long departmentId) {

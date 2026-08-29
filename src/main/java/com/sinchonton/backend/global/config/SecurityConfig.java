@@ -1,5 +1,7 @@
 package com.sinchonton.backend.global.config;
 
+import com.sinchonton.backend.global.security.admin.AdminKeyFilter;
+import com.sinchonton.backend.global.security.admin.AdminKeyProperties;
 import com.sinchonton.backend.global.security.handler.JwtAccessDeniedHandler;
 import com.sinchonton.backend.global.security.handler.JwtAuthenticationEntryPoint;
 import com.sinchonton.backend.global.security.jwt.JwtAuthenticationFilter;
@@ -10,10 +12,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -21,7 +26,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableConfigurationProperties({JwtProperties.class, OAuth2Properties.class})
+@EnableConfigurationProperties({JwtProperties.class, OAuth2Properties.class, AdminKeyProperties.class})
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -31,6 +36,8 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final OAuth2RedirectUriResolver oAuth2RedirectUriResolver;
+    private final AdminKeyFilter adminKeyFilter;
+    private final ClientRegistrationRepository clientRegistrationRepository;
     private final CorsConfigurationSource corsConfigurationSource;
 
     /**
@@ -41,6 +48,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/health",
             "/api/auth/**",          // 토큰 재발급
+            "/api/admin/**",         // JWT 대신 X-Admin-Key 헤더로 별도 인증 (AdminKeyFilter)
             "/oauth2/**",            // 카카오 로그인 시작 (/oauth2/authorization/kakao)
             "/login/oauth2/**",      // 카카오 콜백 (/login/oauth2/code/kakao)
             "/swagger-ui/**",
@@ -81,6 +89,8 @@ public class SecurityConfig {
 
                 // 카카오 로그인 → CustomOAuth2UserService 로 회원 조회·생성 → 성공 핸들러가 JWT 발급
                 .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(endpoint -> endpoint.authorizationRequestResolver(
+                                authorizationRequestResolver(clientRegistrationRepository)))
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
                         .failureHandler(oAuth2FailureHandler)
@@ -91,8 +101,24 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)             // 403
                 )
 
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(adminKeyFilter, JwtAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    /**
+     * 카카오 인가 요청에 {@code prompt=login} 을 추가해 카카오계정 재인증을 강제합니다.
+     *
+     * <p>이게 없으면 브라우저에 카카오 로그인 세션이 남아있는 동안은 로그인 화면 없이
+     * 바로 통과돼서, 로그인 화면을 확인하거나 다른 계정으로 테스트하기 어렵습니다.
+     */
+    private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
+            ClientRegistrationRepository clientRegistrationRepository) {
+        DefaultOAuth2AuthorizationRequestResolver resolver = new DefaultOAuth2AuthorizationRequestResolver(
+                clientRegistrationRepository, OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+        resolver.setAuthorizationRequestCustomizer(
+                customizer -> customizer.additionalParameters(params -> params.put("prompt", "login")));
+        return resolver;
     }
 }
