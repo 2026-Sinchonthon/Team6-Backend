@@ -2,10 +2,11 @@ package com.sinchonton.backend.service;
 
 import com.sinchonton.backend.dto.UserStatsResponse;
 import com.sinchonton.backend.entity.StudyRecord;
-import com.sinchonton.backend.entity.User;
 import com.sinchonton.backend.repository.StudyRecordRepository;
-import com.sinchonton.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import com.sinchonton.backend.domain.user.entity.User;
+import com.sinchonton.backend.domain.user.repository.UserRepository;
 
 import java.util.List;
 

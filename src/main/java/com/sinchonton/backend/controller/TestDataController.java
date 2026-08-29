@@ -1,10 +1,9 @@
 package com.sinchonton.backend.controller;
 
-import com.sinchonton.backend.entity.User;
-import com.sinchonton.backend.repository.UserRepository;
+import com.sinchonton.backend.domain.user.entity.User;
+import com.sinchonton.backend.domain.user.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
-// 테스트용 임시 컨트롤러. 회원가입 API(A 파트) 완성되면 삭제해도 됨.
 @RestController
 @RequestMapping("/api/test")
 public class TestDataController {
@@ -17,29 +16,17 @@ public class TestDataController {
 
     @PostMapping("/seed-users")
     public String seedUsers() {
-        User u1 = new User();
-        u1.setNickname("철수");
-        u1.setSchoolId(1L);
-        u1.setCollegeId(1L);
-        u1.setDepartmentId(1L);
+        User u1 = User.create("test1@test.com", "social-1", "철수", null);
+        u1.updateSchool(1L, 1L, 1L);
 
-        User u2 = new User();
-        u2.setNickname("영희");
-        u2.setSchoolId(1L);
-        u2.setCollegeId(1L);
-        u2.setDepartmentId(2L);
+        User u2 = User.create("test2@test.com", "social-2", "영희", null);
+        u2.updateSchool(1L, 1L, 2L);
 
-        User u3 = new User();
-        u3.setNickname("민수");
-        u3.setSchoolId(1L);
-        u3.setCollegeId(2L);
-        u3.setDepartmentId(3L);
+        User u3 = User.create("test3@test.com", "social-3", "민수", null);
+        u3.updateSchool(1L, 2L, 3L);
 
-        User u4 = new User();
-        u4.setNickname("지은");
-        u4.setSchoolId(1L);
-        u4.setCollegeId(2L);
-        u4.setDepartmentId(4L);
+        User u4 = User.create("test4@test.com", "social-4", "지은", null);
+        u4.updateSchool(1L, 2L, 4L);
 
         userRepository.save(u1);
         userRepository.save(u2);
