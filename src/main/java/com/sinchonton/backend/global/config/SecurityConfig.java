@@ -1,0 +1,94 @@
+package com.sinchonton.backend.global.config;
+
+import com.sinchonton.backend.global.security.handler.JwtAccessDeniedHandler;
+import com.sinchonton.backend.global.security.handler.JwtAuthenticationEntryPoint;
+import com.sinchonton.backend.global.security.jwt.JwtAuthenticationFilter;
+import com.sinchonton.backend.global.security.jwt.JwtProperties;
+import com.sinchonton.backend.global.security.oauth2.CustomOAuth2UserService;
+import com.sinchonton.backend.global.security.oauth2.OAuth2FailureHandler;
+import com.sinchonton.backend.global.security.oauth2.OAuth2Properties;
+import com.sinchonton.backend.global.security.oauth2.OAuth2RedirectUriCaptureFilter;
+import com.sinchonton.backend.global.security.oauth2.OAuth2RedirectUriResolver;
+import com.sinchonton.backend.global.security.oauth2.OAuth2SuccessHandler;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+@EnableConfigurationProperties({JwtProperties.class, OAuth2Properties.class})
+public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
+    private final OAuth2RedirectUriResolver oAuth2RedirectUriResolver;
+    private final CorsConfigurationSource corsConfigurationSource;
+
+    /**
+     * 인증 없이 접근할 수 있는 경로.
+     * 새 경로가 필요하면 여기에 추가하세요.
+     */
+    private static final String[] PUBLIC_ENDPOINTS = {
+            "/api/health",
+            "/api/auth/**",          // 토큰 재발급
+            "/oauth2/**",            // 카카오 로그인 시작 (/oauth2/authorization/kakao)
+            "/login/oauth2/**",      // 카카오 콜백 (/login/oauth2/code/kakao)
+            "/h2-console/**"
+    };
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                // JWT 를 쓰므로 세션을 만들지 않습니다. 따라서 CSRF 토큰도 필요 없습니다.
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // 스프링 시큐리티 기본 로그인 화면 · 팝업을 끕니다.
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+
+                // H2 콘솔이 iframe 을 쓰기 때문에 필요합니다. (local 전용)
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()   // CORS preflight
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .anyRequest().authenticated()
+                )
+
+                // 로그인 시작 요청의 redirect_uri 를 카카오로 넘어가기 전에 챙겨둡니다.
+                .addFilterBefore(new OAuth2RedirectUriCaptureFilter(oAuth2RedirectUriResolver),
+                        OAuth2AuthorizationRequestRedirectFilter.class)
+
+                // 카카오 로그인 → CustomOAuth2UserService 로 회원 조회·생성 → 성공 핸들러가 JWT 발급
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureHandler(oAuth2FailureHandler)
+                )
+
+                .exceptionHandling(handler -> handler
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)   // 401
+                        .accessDeniedHandler(jwtAccessDeniedHandler)             // 403
+                )
+
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+}
