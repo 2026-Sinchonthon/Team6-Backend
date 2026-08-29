@@ -6,6 +6,7 @@ import com.sinchonton.backend.domain.school.entity.School;
 import com.sinchonton.backend.domain.school.repository.SchoolRepository;
 import com.sinchonton.backend.domain.schoolstat.SchoolStudyStat;
 import com.sinchonton.backend.domain.schoolstat.SchoolStudyStatRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -36,42 +37,58 @@ public class SampleDataInitializer {
                 schoolStudyStatRepository.save(new SchoolStudyStat(hongik.getId(), 37.5515, 126.9250, 10370L, 59));
             }
 
-            if (partnerRepository.count() == 0) {
+            List<String> samplePartnerNames = List.of(
+                    "신촌 몰입 스터디카페",
+                    "이대 앞 집중 라운지",
+                    "홍대 밤샘 스터디룸",
+                    "작심스터디카페 신촌숲길점",
+                    "독수리다방",
+                    "미분당 신촌본점"
+            );
+            partnerRepository.deleteAll(partnerRepository.findAllByNameIn(samplePartnerNames));
+
+            if (partnerRepository.findAllByNameIn(samplePartnerNames).isEmpty()) {
                 partnerRepository.save(new Partner(
-                        "신촌 몰입 스터디카페",
+                        "작심스터디카페 신촌숲길점",
                         "스터디카페",
-                        "서울 서대문구 연세로 12",
-                        "신촌역과 가까운 조용한 집중형 스터디카페입니다.",
-                        10,
+                        "서울특별시 마포구 노고산동 56-74",
+                        "시간권 구매 시 20% 할인을 제공하는 제휴 스터디카페입니다.",
+                        20,
+                        "시간권 20% 할인",
                         "https://images.unsplash.com/photo-1497366754035-f200968a6e72",
-                        "https://map.naver.com/p/search/%EC%8B%A0%EC%B4%8C%20%EC%8A%A4%ED%84%B0%EB%94%94%EC%B9%B4%ED%8E%98",
-                        "연세대학교",
-                        "공과대학",
-                        82
-                ));
-                partnerRepository.save(new Partner(
-                        "이대 앞 집중 라운지",
-                        "스터디라운지",
-                        "서울 서대문구 이화여대길 34",
-                        "조용한 좌석과 팀플룸을 함께 제공하는 제휴 공간입니다.",
-                        8,
-                        "https://images.unsplash.com/photo-1524758631624-e2822e304c36",
-                        "https://map.naver.com/p/search/%EC%9D%B4%EB%8C%80%20%EC%8A%A4%ED%84%B0%EB%94%94%EB%9D%BC%EC%9A%B4%EC%A7%80",
-                        "이화여자대학교",
-                        "인문과학대학",
-                        71
-                ));
-                partnerRepository.save(new Partner(
-                        "홍대 밤샘 스터디룸",
-                        "스터디룸",
-                        "서울 마포구 와우산로 21",
-                        "늦은 시간까지 이용하기 좋은 팀 스터디룸입니다.",
-                        7,
-                        "https://images.unsplash.com/photo-1517502884422-41eaead166d4",
-                        "https://map.naver.com/p/search/%ED%99%8D%EB%8C%80%20%EC%8A%A4%ED%84%B0%EB%94%94%EB%A3%B8",
+                        "https://kko.to/F5KDJL1he2",
+                        "현재 홍익대 15명 열공 중",
                         "홍익대학교",
-                        "공과대학",
-                        58
+                        null,
+                        15
+                ));
+                partnerRepository.save(new Partner(
+                        "독수리다방",
+                        "식당/카페",
+                        "서울특별시 서대문구 명물길 36 8층",
+                        "1위 학교 학생에게 음료 15% 혜택을 제공하는 제휴 카페입니다.",
+                        15,
+                        "1위 학교 음료 15%",
+                        "https://images.unsplash.com/photo-1524758631624-e2822e304c36",
+                        "https://kko.to/s-46CSdkKC",
+                        "현재 신촌 대학생 42명 집중 중",
+                        "신촌",
+                        "대학생",
+                        42
+                ));
+                partnerRepository.save(new Partner(
+                        "미분당 신촌본점",
+                        "식당/카페",
+                        "서울특별시 서대문구 연세로5길 26-7 1층",
+                        "Sin:Time 유저라면 누구나 결제 금액 5% 할인을 받을 수 있는 제휴 매장입니다.",
+                        5,
+                        "결제 금액 5% 할인",
+                        "https://images.unsplash.com/photo-1517502884422-41eaead166d4",
+                        "https://kko.to/1ns4xGtAjx",
+                        "Sin:Time 유저 누구나 상시 혜택",
+                        null,
+                        null,
+                        0
                 ));
             }
         };

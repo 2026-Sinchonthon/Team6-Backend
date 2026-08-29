@@ -8,8 +8,11 @@ public record PartnerSummaryResponse(
         String category,
         String address,
         Integer discountRate,
+        String benefitTitle,
         String imageUrl,
+        String mapUrl,
         String naverMapUrl,
+        String statusMessage,
         String occupiedSchoolName,
         String occupiedCollegeName,
         String occupationMessage,
@@ -23,11 +26,14 @@ public record PartnerSummaryResponse(
                 partner.getCategory(),
                 partner.getAddress(),
                 partner.getDiscountRate(),
+                partner.getBenefitTitle(),
                 partner.getImageUrl(),
                 partner.getNaverMapUrl(),
+                partner.getNaverMapUrl(),
+                partner.getStatusMessage(),
                 partner.getOccupiedSchoolName(),
                 partner.getOccupiedCollegeName(),
-                partner.getOccupiedSchoolName() + " " + partner.getOccupiedCollegeName() + "이 점령중",
+                partner.getStatusMessage(),
                 partner.getOccupiedUserCount()
         );
     }

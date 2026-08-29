@@ -9,8 +9,11 @@ public record PartnerDetailResponse(
         String address,
         String description,
         Integer discountRate,
+        String benefitTitle,
         String imageUrl,
+        String mapUrl,
         String naverMapUrl,
+        String statusMessage,
         String occupiedSchoolName,
         String occupiedCollegeName,
         String occupationMessage,
@@ -25,11 +28,14 @@ public record PartnerDetailResponse(
                 partner.getAddress(),
                 partner.getDescription(),
                 partner.getDiscountRate(),
+                partner.getBenefitTitle(),
                 partner.getImageUrl(),
                 partner.getNaverMapUrl(),
+                partner.getNaverMapUrl(),
+                partner.getStatusMessage(),
                 partner.getOccupiedSchoolName(),
                 partner.getOccupiedCollegeName(),
-                partner.getOccupiedSchoolName() + " " + partner.getOccupiedCollegeName() + "이 점령중",
+                partner.getStatusMessage(),
                 partner.getOccupiedUserCount()
         );
     }
