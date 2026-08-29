@@ -4,12 +4,7 @@ import com.sinchonton.backend.global.security.handler.JwtAccessDeniedHandler;
 import com.sinchonton.backend.global.security.handler.JwtAuthenticationEntryPoint;
 import com.sinchonton.backend.global.security.jwt.JwtAuthenticationFilter;
 import com.sinchonton.backend.global.security.jwt.JwtProperties;
-import com.sinchonton.backend.global.security.oauth2.CustomOAuth2UserService;
-import com.sinchonton.backend.global.security.oauth2.OAuth2FailureHandler;
-import com.sinchonton.backend.global.security.oauth2.OAuth2Properties;
-import com.sinchonton.backend.global.security.oauth2.OAuth2RedirectUriCaptureFilter;
-import com.sinchonton.backend.global.security.oauth2.OAuth2RedirectUriResolver;
-import com.sinchonton.backend.global.security.oauth2.OAuth2SuccessHandler;
+import com.sinchonton.backend.global.security.oauth2.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +37,7 @@ public class SecurityConfig {
      * 인증 없이 접근할 수 있는 경로.
      * 새 경로가 필요하면 여기에 추가하세요.
      */
+
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/health",
             "/api/auth/**",          // 토큰 재발급
@@ -50,7 +46,11 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
-            "/h2-console/**"
+            "/h2-console/**",
+//            "/api/test/**",          // 임시: 테스트 시더 API (해커톤 개발용, 나중에 제거)
+//            "/api/timer/**",         // 임시: 인증 완성 전 개발 편의용
+//            "/api/rankings/**",      // 임시: 인증 완성 전 개발 편의용
+//            "/api/users/**"          // 임시: 인증 완성 전 개발 편의용
     };
 
     @Bean
