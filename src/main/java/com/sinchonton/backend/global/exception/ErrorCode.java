@@ -41,6 +41,8 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
     /** 서버가 가진 학교 목록에 없는 값이 들어온 경우 */
     INVALID_SCHOOL(HttpStatus.BAD_REQUEST, "지원하지 않는 학교입니다."),
+    /** 서버가 가진 단과대 목록에 없는 값이 들어온 경우 */
+    INVALID_COLLEGE(HttpStatus.BAD_REQUEST, "지원하지 않는 단과대입니다."),
     /** 서버가 가진 학과 목록에 없는 값이 들어온 경우 */
     INVALID_DEPARTMENT(HttpStatus.BAD_REQUEST, "지원하지 않는 학과입니다."),
     /** 아직 학교를 선택하지 않은 상태에서 학과를 먼저 선택하려는 경우 */

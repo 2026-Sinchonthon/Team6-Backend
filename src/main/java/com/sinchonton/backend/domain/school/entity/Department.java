@@ -6,13 +6,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** 학과. {@link College} 소속. */
+/** 학과. {@link College} 소속. 같은 단과대 안에서 이름이 중복되지 않습니다. */
 @Entity
-@Table(name = "departments")
+@Table(name = "departments", uniqueConstraints = @UniqueConstraint(columnNames = {"college_id", "name"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Department {
@@ -26,4 +27,9 @@ public class Department {
 
     @Column(nullable = false)
     private String name;
+
+    public Department(Long collegeId, String name) {
+        this.collegeId = collegeId;
+        this.name = name;
+    }
 }

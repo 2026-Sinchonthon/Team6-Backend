@@ -81,7 +81,7 @@ public class UserService {
 
     private College findCollege(Long collegeId) {
         return collegeRepository.findById(collegeId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_DEPARTMENT));
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_COLLEGE));
     }
 
     private Department findDepartment(Long departmentId) {
