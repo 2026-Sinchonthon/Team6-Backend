@@ -47,6 +47,7 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/v3/api-docs/**",
             "/h2-console/**",
+            "/api/dev/**"
 //            "/api/test/**",          // 임시: 테스트 시더 API (해커톤 개발용, 나중에 제거)
 //            "/api/timer/**",         // 임시: 인증 완성 전 개발 편의용
 //            "/api/rankings/**",      // 임시: 인증 완성 전 개발 편의용

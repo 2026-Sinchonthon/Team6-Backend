@@ -1,13 +1,13 @@
 package com.sinchonton.backend.service;
 
+import com.sinchonton.backend.domain.user.entity.User;
+import com.sinchonton.backend.domain.user.repository.UserRepository;
 import com.sinchonton.backend.dto.CollegeRankingResponse;
+import com.sinchonton.backend.dto.SchoolRankingResponse;
 import com.sinchonton.backend.dto.UserRankingResponse;
 import com.sinchonton.backend.repository.StudyRecordRepository;
 import com.sinchonton.backend.repository.StudyRecordRepository.UserDurationSum;
 import org.springframework.stereotype.Service;
-
-import com.sinchonton.backend.domain.user.entity.User;
-import com.sinchonton.backend.domain.user.repository.UserRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -73,6 +73,29 @@ public class RankingService {
         for (int i = 0; i < sorted.size(); i++) {
             UserRankingResponse r = sorted.get(i);
             result.add(new UserRankingResponse(r.getUserId(), r.getNickname(), r.getTotalSeconds(), i + 1));
+        }
+        return result;
+    }
+    // 전체 학교 순위: 필터링 없이 전체 유저를 schoolId 기준으로 묶어서 합산
+    public List<SchoolRankingResponse> getSchoolRanking() {
+        Map<Long, Long> userSeconds = getUserIdToSecondsMap();
+        List<User> allUsers = userRepository.findAll();
+
+        Map<Long, Long> schoolTotal = new HashMap<>();
+        for (User user : allUsers) {
+            Long seconds = userSeconds.getOrDefault(user.getId(), 0L);
+            schoolTotal.merge(user.getSchoolId(), seconds, Long::sum);
+        }
+
+        List<SchoolRankingResponse> sorted = schoolTotal.entrySet().stream()
+                .map(e -> new SchoolRankingResponse(e.getKey(), e.getValue(), 0))
+                .sorted(Comparator.comparingLong(SchoolRankingResponse::getTotalSeconds).reversed())
+                .collect(Collectors.toList());
+
+        List<SchoolRankingResponse> result = new ArrayList<>();
+        for (int i = 0; i < sorted.size(); i++) {
+            SchoolRankingResponse r = sorted.get(i);
+            result.add(new SchoolRankingResponse(r.getSchoolId(), r.getTotalSeconds(), i + 1));
         }
         return result;
     }
