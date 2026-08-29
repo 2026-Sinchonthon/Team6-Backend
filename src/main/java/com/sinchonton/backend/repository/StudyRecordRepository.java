@@ -17,6 +17,7 @@ public interface StudyRecordRepository extends JpaRepository<StudyRecord, Long> 
     List<StudyRecord> findByUserIdAndStartedAtBetween(
             Long userId, LocalDateTime start, LocalDateTime end
     );
+    List<StudyRecord> findByUserId(Long userId);
 
     // 새로 추가: 유저별 총 공부시간 합계 (랭킹 계산용)
     @Query("SELECT s.userId AS userId, SUM(s.durationSeconds) AS totalSeconds " +
