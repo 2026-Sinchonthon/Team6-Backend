@@ -1,0 +1,52 @@
+# EC2 배포용 구성. 도메인이 없어 IP:8080 으로 직접 접속합니다 (Caddy/HTTPS 없음).
+#
+#   app    : Spring Boot. 서버에서 이미지를 빌드하지 않고, 로컬에서 만든 jar 를 마운트해서 실행
+#   mysql  : 같은 인스턴스에서 구동. 데이터는 named volume 에 보존
+#
+# 비밀값은 같은 디렉터리의 .env.prod 에서 읽습니다. (저장소에 커밋하지 않음)
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: sinchonton-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: sinchonton
+      MYSQL_USER: sinchonton
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Seoul
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-buffer-pool-size=256M
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    restart: unless-stopped
+
+  app:
+    image: eclipse-temurin:21-jre
+    container_name: sinchonton-app
+    working_dir: /app
+    volumes:
+      - ./app.jar:/app/app.jar:ro
+    ports:
+      - "8080:8080"
+    command: ["java", "-Xmx512m", "-jar", "/app/app.jar"]
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mysql:3306/sinchonton?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      DB_USERNAME: sinchonton
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Seoul
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

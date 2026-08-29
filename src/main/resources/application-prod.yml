@@ -1,0 +1,26 @@
+# 배포용 프로필. 비밀값은 전부 환경변수로 주입합니다.
+#
+# 필수 환경변수
+#   DB_URL, DB_USERNAME, DB_PASSWORD
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+
+logging:
+  level:
+    com.sinchonton: info
+    org.hibernate.SQL: warn

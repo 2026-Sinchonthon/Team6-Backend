@@ -1,0 +1,10 @@
+.git
+.gitignore
+.github
+.idea
+.claude
+build
+.gradle
+*.md
+.env
+deploy
