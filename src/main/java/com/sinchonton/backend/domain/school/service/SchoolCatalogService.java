@@ -60,7 +60,8 @@ public class SchoolCatalogService {
         if (!schoolRepository.existsById(schoolId)) {
             throw new BusinessException(ErrorCode.INVALID_SCHOOL);
         }
-        College saved = collegeRepository.save(new College(schoolId, name));
+        College saved = collegeRepository.findBySchoolIdAndName(schoolId, name)
+                .orElseGet(() -> collegeRepository.save(new College(schoolId, name)));
         return CollegeResponse.from(saved);
     }
 
@@ -69,7 +70,8 @@ public class SchoolCatalogService {
         if (!collegeRepository.existsById(collegeId)) {
             throw new BusinessException(ErrorCode.INVALID_COLLEGE);
         }
-        Department saved = departmentRepository.save(new Department(collegeId, name));
+        Department saved = departmentRepository.findByCollegeIdAndName(collegeId, name)
+                .orElseGet(() -> departmentRepository.save(new Department(collegeId, name)));
         return DepartmentResponse.from(saved);
     }
 }
