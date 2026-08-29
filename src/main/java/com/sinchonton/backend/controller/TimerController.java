@@ -20,6 +20,16 @@ public class TimerController {
         timerService.startTimer(authUser.getUserId());
     }
 
+    @PostMapping("/pause")
+    public void pause(@AuthenticationPrincipal AuthUser authUser) {
+        timerService.pauseTimer(authUser.getUserId());
+    }
+
+    @PostMapping("/resume")
+    public void resume(@AuthenticationPrincipal AuthUser authUser) {
+        timerService.resumeTimer(authUser.getUserId());
+    }
+
     @PostMapping("/stop")
     public void stop(@AuthenticationPrincipal AuthUser authUser) {
         timerService.stopTimer(authUser.getUserId());
