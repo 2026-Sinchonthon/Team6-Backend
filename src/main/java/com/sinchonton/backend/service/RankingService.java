@@ -1,5 +1,7 @@
 package com.sinchonton.backend.service;
 
+import com.sinchonton.backend.domain.school.entity.School;
+import com.sinchonton.backend.domain.school.repository.SchoolRepository;
 import com.sinchonton.backend.domain.user.entity.User;
 import com.sinchonton.backend.domain.user.repository.UserRepository;
 import com.sinchonton.backend.dto.CollegeRankingResponse;
@@ -17,10 +19,14 @@ public class RankingService {
 
     private final StudyRecordRepository studyRecordRepository;
     private final UserRepository userRepository;
+    private final SchoolRepository schoolRepository;
 
-    public RankingService(StudyRecordRepository studyRecordRepository, UserRepository userRepository) {
+    public RankingService(StudyRecordRepository studyRecordRepository,
+                          UserRepository userRepository,
+                          SchoolRepository schoolRepository) {
         this.studyRecordRepository = studyRecordRepository;
         this.userRepository = userRepository;
+        this.schoolRepository = schoolRepository;
     }
 
     // userId -> 총 공부시간(초) 맵으로 미리 만들어두는 공통 로직
@@ -63,12 +69,11 @@ public class RankingService {
                         u.getId(),
                         u.getNickname(),
                         userSeconds.getOrDefault(u.getId(), 0L),
-                        0 // 순위는 정렬 후 채움
+                        0
                 ))
                 .sorted(Comparator.comparingLong(UserRankingResponse::getTotalSeconds).reversed())
                 .collect(Collectors.toList());
 
-        // 정렬 후 순위 매기기
         List<UserRankingResponse> result = new ArrayList<>();
         for (int i = 0; i < sorted.size(); i++) {
             UserRankingResponse r = sorted.get(i);
@@ -76,6 +81,7 @@ public class RankingService {
         }
         return result;
     }
+
     // 전체 학교 순위: 필터링 없이 전체 유저를 schoolId 기준으로 묶어서 합산
     public List<SchoolRankingResponse> getSchoolRanking() {
         Map<Long, Long> userSeconds = getUserIdToSecondsMap();
@@ -83,19 +89,31 @@ public class RankingService {
 
         Map<Long, Long> schoolTotal = new HashMap<>();
         for (User user : allUsers) {
+            if (user.getSchoolId() == null) {
+                continue; // 온보딩 전 유저는 학교 랭킹 집계에서 제외
+            }
             Long seconds = userSeconds.getOrDefault(user.getId(), 0L);
             schoolTotal.merge(user.getSchoolId(), seconds, Long::sum);
         }
 
+        // schoolId -> schoolName 매핑
+        Map<Long, String> schoolNames = schoolRepository.findAllById(schoolTotal.keySet()).stream()
+                .collect(Collectors.toMap(School::getId, School::getName));
+
         List<SchoolRankingResponse> sorted = schoolTotal.entrySet().stream()
-                .map(e -> new SchoolRankingResponse(e.getKey(), e.getValue(), 0))
+                .map(e -> new SchoolRankingResponse(
+                        e.getKey(),
+                        schoolNames.getOrDefault(e.getKey(), "알 수 없음"),
+                        e.getValue(),
+                        0
+                ))
                 .sorted(Comparator.comparingLong(SchoolRankingResponse::getTotalSeconds).reversed())
                 .collect(Collectors.toList());
 
         List<SchoolRankingResponse> result = new ArrayList<>();
         for (int i = 0; i < sorted.size(); i++) {
             SchoolRankingResponse r = sorted.get(i);
-            result.add(new SchoolRankingResponse(r.getSchoolId(), r.getTotalSeconds(), i + 1));
+            result.add(new SchoolRankingResponse(r.getSchoolId(), r.getSchoolName(), r.getTotalSeconds(), i + 1));
         }
         return result;
     }

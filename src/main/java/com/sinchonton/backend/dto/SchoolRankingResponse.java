@@ -1,12 +1,22 @@
 package com.sinchonton.backend.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class SchoolRankingResponse {
-    private Long schoolId;
-    private Long totalSeconds;
-    private int rank; // 몇 위인지 (프론트에서 "우리 학교 3위" 표시할 때 바로 쓸 수 있게)
+    private final Long schoolId;
+    private final String schoolName;
+    private final Long totalSeconds;
+    private final long totalStudyMinutes;
+    private final double totalStudyHours;
+    private final int rank;
+
+    public SchoolRankingResponse(Long schoolId, String schoolName, Long totalSeconds, int rank) {
+        this.schoolId = schoolId;
+        this.schoolName = schoolName;
+        this.totalSeconds = totalSeconds;
+        this.totalStudyMinutes = totalSeconds / 60;
+        this.totalStudyHours = Math.round((totalSeconds / 3600.0) * 10) / 10.0; // 소수점 1자리
+        this.rank = rank;
+    }
 }
