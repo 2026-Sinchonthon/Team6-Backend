@@ -12,3 +12,7 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+jwt:
+  # 로컬 개발 전용 기본값. 운영(application.yml 의 기본 secret)에는 기본값이 없습니다.
+  secret: ${JWT_SECRET:sinchonton-local-dev-secret-key-do-not-use-in-production-32bytes}

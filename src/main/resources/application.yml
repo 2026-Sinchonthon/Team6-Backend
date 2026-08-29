@@ -31,8 +31,11 @@ spring:
             user-name-attribute: id
 
 jwt:
-  # 운영에서는 반드시 환경변수 JWT_SECRET 으로 덮어쓰세요. (아래 기본값은 로컬 개발 전용)
-  secret: ${JWT_SECRET:sinchonton-local-dev-secret-key-do-not-use-in-production-32bytes}
+  # 기본값을 두지 않았습니다 — 로컬 개발용 기본값은 application-local.yml 에만 있습니다.
+  # 여기 기본값을 두면, 운영에서 JWT_SECRET 설정을 빠뜨렸을 때 서버가 에러 없이
+  # 뜨면서 레포에 공개된 값으로 조용히 서명하게 됩니다. 설정을 빠뜨리면 아예
+  # 안 뜨는 쪽이 안전합니다.
+  secret: ${JWT_SECRET}
   access-token-validity: 3600000        # 1시간
   refresh-token-validity: 1209600000    # 14일
 
