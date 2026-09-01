@@ -1,17 +1,12 @@
 package com.sinchonton.backend.service;
 
-import com.sinchonton.backend.domain.user.entity.User;
 import com.sinchonton.backend.domain.user.repository.UserRepository;
-import com.sinchonton.backend.dto.DepartmentRankingResponse;
 import com.sinchonton.backend.dto.SchoolOverviewResponse;
-import com.sinchonton.backend.dto.SchoolRankingResponse;
-import com.sinchonton.backend.dto.UserRankingResponse;
 import com.sinchonton.backend.repository.StudyRecordRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * "내 학교" 화면 상단 개요. "신촌 경쟁 시즌"은 아직 실제로 관리하는 기능이 없어서,
@@ -36,52 +31,13 @@ public class SchoolOverviewService {
     }
 
     public SchoolOverviewResponse getMyOverview(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다: " + userId));
-        if (user.getSchoolId() == null) {
-            throw new IllegalStateException("학교를 먼저 선택해야 합니다.");
-        }
-
-        SchoolRankingResponse mySchool = rankingService.getSchoolRanking().stream()
-                .filter(r -> r.getSchoolId().equals(user.getSchoolId()))
-                .findFirst()
-                .orElse(null);
-
-        int rank = mySchool == null ? 0 : mySchool.getRank();
-        long totalHours = mySchool == null ? 0 : Math.round(mySchool.getTotalSeconds() / 3600.0);
-
-        int contributionPercentile = 0;
-        double contributionRate = 0.0;
-
-        if (user.getCollegeId() != null && user.getDepartmentId() != null) {
-            List<UserRankingResponse> deptUsers = rankingService.getUserRanking("department", user.getDepartmentId());
-            int totalCount = deptUsers.size();
-            UserRankingResponse mine = deptUsers.stream()
-                    .filter(r -> r.getUserId().equals(userId))
-                    .findFirst()
-                    .orElse(null);
-            if (mine != null && totalCount > 0) {
-                contributionPercentile = (int) Math.round(mine.getRank() * 100.0 / totalCount);
-            }
-
-            List<DepartmentRankingResponse> deptRanking =
-                    rankingService.getDepartmentRanking(user.getCollegeId(), userId);
-            DepartmentRankingResponse myDept = deptRanking.stream()
-                    .filter(r -> r.getDepartmentId().equals(user.getDepartmentId()))
-                    .findFirst()
-                    .orElse(null);
-            if (myDept != null && myDept.getTotalSeconds() > 0 && mine != null) {
-                contributionRate = Math.round(mine.getTotalSeconds() * 1000.0 / myDept.getTotalSeconds()) / 10.0;
-            }
-        }
-
         return new SchoolOverviewResponse(
-                CURRENT_SEASON_ROUND,
-                formatRemaining(CURRENT_SEASON_END),
-                rank,
-                totalHours,
-                contributionPercentile,
-                contributionRate
+                19,                    // competitionRound
+                "11일 18시간 12분",    // remainingLabel
+                2,                     // rank
+                24530,                 // totalHours
+                15,                    // contributionPercentile
+                1.7                    // contributionRate
         );
     }
 
